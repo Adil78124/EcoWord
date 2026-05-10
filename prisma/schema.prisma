@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  VOLUNTEER
+  ADMIN
+}
+
+enum VolunteerApplicationStatus {
+  NEW
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  CLOSED
+}
+
+enum DonationType {
+  ONCE
+  MONTHLY
+}
+
+enum DonationStatus {
+  CREATED
+  TEST_PAID
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  city         String?
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  profile Profile?
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  avatarUrl      String?  @map("avatar_url")
+  bio            String   @default("")
+  interests      String   @default("")
+  volunteerHours Int      @default(0) @map("volunteer_hours")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VolunteerApplication {
+  id         String                     @id @default(cuid())
+  name       String
+  phone      String
+  email      String
+  city       String
+  age        Int
+  direction  String
+  experience String                     @default("")
+  comment    String                     @default("")
+  status     VolunteerApplicationStatus @default(NEW)
+  createdAt  DateTime                   @default(now()) @map("created_at")
+  updatedAt  DateTime                   @updatedAt @map("updated_at")
+}
+
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+}
+
+model Donation {
+  id             String         @id @default(cuid())
+  donorName      String         @map("donor_name")
+  donorEmail     String         @map("donor_email")
+  amount         Decimal        @db.Decimal(12, 2)
+  type           DonationType
+  status         DonationStatus @default(CREATED)
+  invoiceNumber  String         @unique @map("invoice_number")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+}
