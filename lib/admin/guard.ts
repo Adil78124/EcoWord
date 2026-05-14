@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth/session";
+import { isBootstrapAdminSession } from "@/lib/auth/bootstrap-admin";
 import { jsonError } from "@/lib/api/response";
 
 export type AdminGuardOk = { userId: string };
@@ -17,6 +18,9 @@ export async function requireAdminApi(): Promise<AdminGuardOk | Response> {
   }
   if (session.role !== "ADMIN") {
     return jsonError("Недостаточно прав: нужна роль ADMIN.", 403);
+  }
+  if (isBootstrapAdminSession(session.userId)) {
+    return { userId: session.userId };
   }
   const user = await prisma.user.findUnique({
     where: { id: session.userId },

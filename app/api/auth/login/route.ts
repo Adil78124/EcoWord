@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { attachUserSession } from "@/lib/auth/session";
+import {
+  BOOTSTRAP_ADMIN_USER_ID,
+  isBootstrapAdminLogin,
+} from "@/lib/auth/bootstrap-admin";
 import { jsonError } from "@/lib/api/response";
 import { respondIfDatabaseNotConfigured } from "@/lib/db-config";
 import { z } from "zod";
@@ -12,8 +17,6 @@ const loginSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const dbMissing = respondIfDatabaseNotConfigured();
-  if (dbMissing) return dbMissing;
   try {
     const body = await req.json();
     const parsed = loginSchema.safeParse(body);
@@ -21,6 +24,35 @@ export async function POST(req: Request) {
       return jsonError("Некорректные данные", 400);
     }
     const { email, password } = parsed.data;
+
+    if (isBootstrapAdminLogin(email, password)) {
+      let userId = BOOTSTRAP_ADMIN_USER_ID;
+      let role: UserRole = "ADMIN";
+      if (process.env.DATABASE_URL?.trim()) {
+        try {
+          const u = await prisma.user.findUnique({
+            where: { email: email.toLowerCase() },
+          });
+          if (u?.role === "ADMIN") {
+            userId = u.id;
+            role = u.role;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      const res = NextResponse.json({
+        success: true,
+        userId,
+        role,
+      });
+      await attachUserSession(res, userId, role);
+      return res;
+    }
+
+    const dbMissing = respondIfDatabaseNotConfigured();
+    if (dbMissing) return dbMissing;
+
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
