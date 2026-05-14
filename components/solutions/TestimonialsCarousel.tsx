@@ -1,47 +1,30 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
 const IMAGES = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCVpDuH0nVhGOvEH5ISAQMO26Z1Xuhh-dZ-jNROmG4iley134gFr7lQqj7vsmAcK1F7TVpOLgQHust9ARIjyETVK9iEqu211Q27pVCrZDgRDHBAl2hTM5KP_4UxsxBtvqRl42gHt2pu-v1QxpjcL6V0iSSgiQCt4Hj_37XmoKoo2FtVjw8yma7VSHWYuMOQxvpACpEB7IXGMk-yWNwkSKbj7GtWA7q9v7H6Jx8RjiM6YJJn1i5L7zs6ZyHGLiySsHeold5s7COtxCtI",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAjd75XTLLhcSGoubSKgBz5Qa9-Ro4Mcxzu_ctskZVBnfbAmtX7uC43vt9a4tfRWuoCXUehvPXQuaLEETZwMyLfpNDssua-LFgWkrnMTCgmhUyNtS5jAv5tfJ_7HfNI6GvdgJceQvtjeN70TpquWCPy0OfWBTHlrvzH6E1eGJYBI-M_eNPPUf-YGk9ZuqKzRDR4PMnuN3KXP0RvmZLixY8HrKlO6Ark7IMUyUI0eYXs3GiDgpeWK79deeJeQ8FFoBmu48NXzqDblE9j",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDgpM422JvYeZrAuCHQWkxkr2fPEhqShtk45ZrSG59kW9oNgXnr8pHFmx4sQUUhJF9Ek1cmlBQh_cFoAwAzbBUGryBSe8Pju9k1xxY8jv1dMmUd5EEHITHJNgeOqdz4CLMpa4B9SSgIpYAOXUL3khadFCY-vmGd05AzTRfL0qAov-T1Yr4JFkYCr2RVPLXVVShNxykoD4Xk4RxGtLL_Awy7re6XfUyi0uxyPTzmGv8dhjd4tXZQVkRv5tfRMcjsVJ5e6nBUFfQszWlK",
+  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&h=600&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=900&h=600&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=900&h=600&fit=crop&q=80",
 ] as const;
 
 export function TestimonialsCarousel() {
   const { t } = useI18n();
-  const n = IMAGES.length;
-  const [start, setStart] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const cards = useMemo(
-    () =>
-      [0, 1, 2].map((offset) => {
-        const i = (start + offset) % n;
-        const prefix = `sol.tc${i}` as const;
-        return {
-          img: IMAGES[i],
-          tag: t(`${prefix}.tag`),
-          quote: t(`${prefix}.quote`),
-          name: t(`${prefix}.name`),
-          role: t(`${prefix}.role`),
-        };
-      }),
-    [start, n, t],
-  );
-
-  const prev = useCallback(() => {
-    setStart((i) => (i - 1 + n) % n);
-  }, [n]);
-
-  const next = useCallback(() => {
-    setStart((i) => (i + 1) % n);
-  }, [n]);
+  const scrollBy = useCallback((direction: -1 | 1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const first = el.querySelector<HTMLElement>("[data-testimonial-card]");
+    const step = first ? first.offsetWidth + 24 : 360;
+    el.scrollBy({ left: direction * step, behavior: "smooth" });
+  }, []);
 
   return (
     <section className="mb-unit-xl px-margin-mobile md:px-margin-tablet lg:px-margin-desktop">
       <div className="mx-auto max-w-container-max">
-        <div className="mb-12 flex flex-col items-end justify-between gap-6 md:flex-row">
+        <div className="mb-8 flex flex-col items-end justify-between gap-6 md:mb-12 md:flex-row">
           <div className="max-w-xl">
             <h2 className="mb-4 font-headline-md text-headline-md text-primary">
               {t("sol.tc.title")}
@@ -50,52 +33,60 @@ export function TestimonialsCarousel() {
               {t("sol.tc.sub")}
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <button
               type="button"
               aria-label={t("sol.tc.prevAria")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-emerald-700 hover:text-white"
-              onClick={prev}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-outline bg-white/90 shadow-sm transition-all hover:bg-emerald-700 hover:text-white"
+              onClick={() => scrollBy(-1)}
             >
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
             <button
               type="button"
               aria-label={t("sol.tc.nextAria")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-emerald-700 hover:text-white"
-              onClick={next}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-outline bg-white/90 shadow-sm transition-all hover:bg-emerald-700 hover:text-white"
+              onClick={() => scrollBy(1)}
             >
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-3">
-          {cards.map((c, idx) => (
-            <div
-              key={`${start}-${idx}`}
-              className="glass-card ambient-shadow overflow-hidden rounded-3xl border border-white/40"
-            >
-              <div className="relative h-64 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className="h-full w-full object-cover" src={c.img} />
-                <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-secondary backdrop-blur-md">
-                  {c.tag}
+
+        <div
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-gutter overflow-x-auto scroll-smooth pb-4 [-ms-overflow-style:none] [scrollbar-color:rgba(5,150,105,0.45)_rgba(236,253,245,0.9)] [scrollbar-width:thin] sm:pb-5 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-600/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-emerald-50"
+        >
+          {IMAGES.map((img, i) => {
+            const prefix = `sol.tc${i}` as const;
+            return (
+              <div
+                key={i}
+                data-testimonial-card
+                className="glass-card ambient-shadow w-[min(100%,340px)] shrink-0 snap-center snap-always overflow-hidden rounded-3xl border border-white/40 sm:w-[min(100%,380px)] md:w-[360px]"
+              >
+                <div className="relative h-64 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img alt="" className="h-full w-full object-cover" src={img} />
+                  <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-emerald-900 backdrop-blur-md">
+                    {t(`${prefix}.tag`)}
+                  </div>
                 </div>
-              </div>
-              <div className="p-unit-lg">
-                <p className="mb-4 font-body-md text-body-md italic text-on-surface">
-                  {c.quote}
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-secondary-container" />
-                  <div>
-                    <div className="text-sm font-bold">{c.name}</div>
-                    <div className="text-xs text-on-surface-variant">{c.role}</div>
+                <div className="p-unit-lg">
+                  <p className="mb-4 font-body-md text-body-md italic text-on-surface">
+                    {t(`${prefix}.quote`)}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-emerald-100 ring-2 ring-emerald-200/80" />
+                    <div>
+                      <div className="text-sm font-bold text-primary">{t(`${prefix}.name`)}</div>
+                      <div className="text-xs text-on-surface-variant">{t(`${prefix}.role`)}</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

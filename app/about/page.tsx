@@ -75,22 +75,22 @@ export default function AboutPage() {
     () =>
       [
         {
-          img: "/images/team/member-1.svg",
+          img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=600&fit=crop&q=80",
           name: "д-р Алмагуль Садыкова",
           roleKey: "about.team.r0" as const,
         },
         {
-          img: "/images/team/member-2.svg",
+          img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=600&fit=crop&q=80",
           name: "Данияр Аманов",
           roleKey: "about.team.r1" as const,
         },
         {
-          img: "/images/team/member-3.svg",
+          img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&h=600&fit=crop&q=80",
           name: "Жанар Искакова",
           roleKey: "about.team.r2" as const,
         },
         {
-          img: "/images/team/member-4.svg",
+          img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=600&fit=crop&q=80",
           name: "Кайрат Нурмаханов",
           roleKey: "about.team.r3" as const,
         },

@@ -13,13 +13,12 @@ export function SolutionsCtaActions() {
       >
         {t("cta.participate")}
       </Link>
-      <button
-        type="button"
-        className="w-full rounded-full border-2 border-white bg-white/15 px-8 py-4 font-bold text-white backdrop-blur-sm transition-all hover:bg-white/25 md:w-auto"
-        onClick={() => window.alert(t("cta.reportsSoon"))}
+      <Link
+        href="/sources"
+        className="w-full rounded-full border-2 border-white bg-white/15 px-8 py-4 text-center font-bold text-white backdrop-blur-sm transition-all hover:bg-white/25 md:w-auto"
       >
         {t("cta.readReports")}
-      </button>
+      </Link>
     </div>
   );
 }

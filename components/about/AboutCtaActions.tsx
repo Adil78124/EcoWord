@@ -13,13 +13,6 @@ export function AboutCtaActions() {
       >
         {t("cta.participate")}
       </Link>
-      <button
-        type="button"
-        className="w-full rounded-full border border-white/20 px-8 py-4 font-label-md text-label-md text-white transition-colors hover:bg-white/10 sm:w-auto"
-        onClick={() => window.alert(t("cta.reportsSoon"))}
-      >
-        {t("cta.readImpact")}
-      </button>
     </div>
   );
 }

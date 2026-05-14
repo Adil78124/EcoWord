@@ -28,7 +28,6 @@ export const MESSAGES: Record<string, Record<AppLocale, string>> = {
   "footer.contacts": { ru: "Контакты", kz: "Байланыс" },
   "footer.privacy": { ru: "Политика конфиденциальности", kz: "Құпиялылық саясаты" },
   "footer.terms": { ru: "Условия использования", kz: "Пайдалану шарттары" },
-  "footer.documentsIndex": { ru: "Документы", kz: "Құжаттар" },
   "home.hero.title": {
     ru: "Защитим природу Казахстана вместе",
     kz: "Қазақстан табиғатын бірге қорғайық",

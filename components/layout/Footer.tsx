@@ -35,7 +35,7 @@ export function Footer() {
             </li>
             <li>
               <Link
-                href="/documents"
+                href="/sources"
                 className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
                 {t("footer.reports")}
@@ -73,14 +73,6 @@ export function Footer() {
             {t("footer.docs")}
           </h5>
           <ul className="space-y-3">
-            <li>
-              <Link
-                href="/documents"
-                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
-              >
-                {t("footer.documentsIndex")}
-              </Link>
-            </li>
             <li>
               <Link
                 href="/privacy"

@@ -34,7 +34,7 @@ export default function VolunteersPage() {
           icon: "videocam" as const,
         },
         {
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA0QUR_tDj4-I6yUzhmFVBxwWZB6nAnvDWaVWvMI0O5R_xi6Btc2Fpt4CLUBIdjMmUyyJMGDW1oF_RAeVQh_zcU0zZ_N1M-uvNkCo7SJkwp34qcnmI6pnyBszqmuQAts2l8RurM-czOaFsk2eqedsMT27VrK1-YR5WkKQYOhwpfJFyXvF8PNcv9lGk6nubAF5NRnt4kiYl10iYeBXOVsDwN2Au-EFkqCQOMxRgBgVuEsHAkUC0Jqvzu1N17RA3m5twKEbUxv37ZiCK1",
+          img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=900&h=560&fit=crop&q=80",
           dateKey: "vol.ev4.date",
           titleKey: "vol.ev4.title",
           locKey: "vol.ev4.loc",
