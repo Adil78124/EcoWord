@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonError } from "@/lib/api/response";
-import { respondIfDatabaseNotConfigured } from "@/lib/db-config";
+import { isDatabaseConfigured } from "@/lib/db-config";
 import { requireAdminApi } from "@/lib/admin/guard";
 
 export async function GET() {
-  const db = respondIfDatabaseNotConfigured();
-  if (db) return db;
   const auth = await requireAdminApi();
   if (auth instanceof Response) return auth;
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json({
+      success: true,
+      stats: {
+        volunteerTotal: 0,
+        volunteerNew: 0,
+        contactTotal: 0,
+        donationsTotal: 0,
+        donationsTestPaid: 0,
+        usersTotal: 0,
+      },
+      recent: { volunteers: [], contacts: [], donations: [] },
+    });
+  }
   try {
     const [
       volunteerTotal,

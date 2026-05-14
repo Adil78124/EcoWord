@@ -8,10 +8,10 @@ import { donationStatusSchema } from "@/lib/validations/admin";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: Request, context: Ctx) {
-  const db = respondIfDatabaseNotConfigured();
-  if (db) return db;
   const auth = await requireAdminApi();
   if (auth instanceof Response) return auth;
+  const db = respondIfDatabaseNotConfigured();
+  if (db) return db;
   try {
     const { id } = await context.params;
     const body = await req.json();
@@ -34,10 +34,10 @@ export async function PATCH(req: Request, context: Ctx) {
 }
 
 export async function DELETE(_req: Request, context: Ctx) {
-  const db = respondIfDatabaseNotConfigured();
-  if (db) return db;
   const auth = await requireAdminApi();
   if (auth instanceof Response) return auth;
+  const db = respondIfDatabaseNotConfigured();
+  if (db) return db;
   try {
     const { id } = await context.params;
     await prisma.donation.delete({ where: { id } });

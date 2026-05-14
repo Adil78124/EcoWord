@@ -5,6 +5,12 @@ export type SessionRole = "USER" | "VOLUNTEER" | "ADMIN";
 
 export const SESSION_COOKIE = "ecoworld_session";
 
+/** Для понятных ответов API до вызова signSessionToken. */
+export function isJwtSecretConfigured(): boolean {
+  const s = process.env.JWT_SECRET?.trim();
+  return Boolean(s && s.length >= 16);
+}
+
 function getSecret(): Uint8Array {
   const s = process.env.JWT_SECRET;
   if (!s || s.length < 16) {

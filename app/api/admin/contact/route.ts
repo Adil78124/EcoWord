@@ -2,17 +2,18 @@ import { NextResponse } from "next/server";
 import type { ContactMessageStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonError, zodToFieldErrors } from "@/lib/api/response";
-import { respondIfDatabaseNotConfigured } from "@/lib/db-config";
+import { isDatabaseConfigured } from "@/lib/db-config";
 import { requireAdminApi } from "@/lib/admin/guard";
 import { listQuerySchema } from "@/lib/validations/admin";
 
 const STATUSES: ContactMessageStatus[] = ["NEW", "READ", "CLOSED"];
 
 export async function GET(req: Request) {
-  const db = respondIfDatabaseNotConfigured();
-  if (db) return db;
   const auth = await requireAdminApi();
   if (auth instanceof Response) return auth;
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json({ success: true, items: [] });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const parsed = listQuerySchema.safeParse({
