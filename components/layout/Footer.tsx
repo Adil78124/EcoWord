@@ -28,23 +28,23 @@ export function Footer() {
             <li>
               <Link
                 href="/about"
-                className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
                 {t("footer.about")}
               </Link>
             </li>
             <li>
-              <a
-                href="#"
-                className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
+              <Link
+                href="/documents"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
                 {t("footer.reports")}
-              </a>
+              </Link>
             </li>
             <li>
               <Link
                 href="/help"
-                className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
                 {t("footer.contacts")}
               </Link>
@@ -56,20 +56,16 @@ export function Footer() {
             {t("footer.directions")}
           </h5>
           <ul className="space-y-3">
-            {navItems
-              .filter((i) =>
-                ["/problems", "/solutions", "/volunteers"].includes(i.href),
-              )
-              .map((i) => (
-                <li key={i.href}>
-                  <Link
-                    href={i.href}
-                    className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
-                  >
-                    {t(i.labelKey)}
-                  </Link>
-                </li>
-              ))}
+            {navItems.map((i) => (
+              <li key={i.href}>
+                <Link
+                  href={i.href}
+                  className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
+                >
+                  {t(i.labelKey)}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
         <div>
@@ -78,20 +74,28 @@ export function Footer() {
           </h5>
           <ul className="space-y-3">
             <li>
-              <a
-                href="#"
-                className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
+              <Link
+                href="/documents"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
-                {t("footer.privacy")}
-              </a>
+                {t("footer.documentsIndex")}
+              </Link>
             </li>
             <li>
-              <a
-                href="#"
-                className="font-body-md text-body-md text-on-surface-variant transition-all hover:text-secondary hover:underline"
+              <Link
+                href="/privacy"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
+              >
+                {t("footer.privacy")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/terms"
+                className="font-body-md text-body-md text-slate-700 transition-colors hover:text-emerald-800 hover:underline"
               >
                 {t("footer.terms")}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

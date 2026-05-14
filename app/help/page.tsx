@@ -54,7 +54,7 @@ export default function HelpPage() {
             </div>
             <Link
               href="/volunteers#volunteer-form"
-              className="relative z-10 flex items-center gap-2 font-label-md text-label-md transition-all group-hover:gap-4"
+              className="relative z-10 flex items-center gap-2 font-label-md text-label-md text-white underline-offset-4 transition-all hover:gap-4 hover:underline"
             >
               {t("help.volunteerCta")}{" "}
               <span className="material-symbols-outlined">arrow_forward</span>

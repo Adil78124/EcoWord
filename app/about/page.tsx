@@ -75,22 +75,22 @@ export default function AboutPage() {
     () =>
       [
         {
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC6-U-92GOkqVT49uwLUGP3AOedy98_1TVFEZPDggILTR41rKvmY_5rLqpC2llCigJkhD1Hz9ToO92cpDVNVao9TOewQ9nfWWalxg_JMLbWj2oqctwqXlT2Tvci7wNCJRACYaKMc6RSqybvCjJdkir5tQV85HiN8b7tJOdcbXDYkFDbWGk2sLc31ZkHp1oc_3tM3Q_nztHtodJIsG57ThB8jZn_wVGqD6A3-eBGkJCSCM7lwlJIHpJAdMXIfi_pFJEpWl2l3uPdMNVS",
+          img: "/images/team/member-1.svg",
           name: "д-р Алмагуль Садыкова",
           roleKey: "about.team.r0" as const,
         },
         {
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuARpOEjNtx0EQJ4V6JFw7dqII53y_HrJMru73Fz7UVGXiFRxNIPSXjm35xeBP-50lrRzP-IN4BH-8h18IT2AFTQ85HmNbztbm8nwNBsfiTVGPR7dXRCB2ic0XPZA7ZL0Diywv3FvJRk5m-KMdLKRXmNHhMu4kgEnoogPMbucVZL_aeNBHJYy4xLoohKMisJybZPbz4z7shrckxOu-3TyOLVGqEGj1S3QSbwYT8vLfCbZJq9KB2O5riLXIVkaukMcp2k0YUSZU8kSRLS",
+          img: "/images/team/member-2.svg",
           name: "Данияр Аманов",
           roleKey: "about.team.r1" as const,
         },
         {
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC1q_xJEawZnztxJqmsd3GRatOLLAO08tzMwp_pLXq0aH-zUBlUROFq6RlaVqUBmf7yAi6WVHyu6c105ih7SOzY-xS2yEeFjL82UqlbiOJgGuAveCVh3u0sC_76NEUxkL1HOB1i-NGPFsg-mAq3EMjy-YYgfctW_DB63MF8iqojDjz9wDiNieoEbM8sUJ9GYnCAwr5TCCPftn7fX0mt3I6QqJhUS4EcnnMxlDgr5Zwrt1_T3pA_cMYDiG__4-7hnatdyWkEAIBGRJY",
+          img: "/images/team/member-3.svg",
           name: "Жанар Искакова",
           roleKey: "about.team.r2" as const,
         },
         {
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBFyemDDQbxhZ9NRS5oeMRlsuROIxPeH_uKhPJfC2MclPzCB7mjcFQtnG3okmOw5rorf1rkzCIdqruRA_0bWcslnUGucolFlIoHnyoau3GYD3rCBibaQe2ktKAwvvkRum_8wWdeHNkDAhhOR3GeJLnecNyZ2NFHKf9dlpPMORqduoq5i4UnDVCihK9J9ycmEObUpFMwV2q-TFxs9sSn7eIC1kOuYjaKrhIu28IhQQADAbUyGDaSKpTQDUx10xk1YdXyNLBn9Ziw_tFI",
+          img: "/images/team/member-4.svg",
           name: "Кайрат Нурмаханов",
           roleKey: "about.team.r3" as const,
         },

@@ -275,17 +275,23 @@ details > summary::-webkit-details-marker {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+  Публичный сайт: shadcn-переменные должны совпадать с палитрой @theme выше.
+  Иначе @theme inline подменяет --color-primary/--color-secondary нейтральными
+  значениями, и классы вроде text-secondary / bg-secondary становятся
+  почти белыми на светлом фоне.
+*/
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --background: #faf8ff;
+  --foreground: #131b2e;
+  --card: #ffffff;
+  --card-foreground: #131b2e;
+  --popover: #ffffff;
+  --popover-foreground: #131b2e;
+  --primary: #003b1b;
+  --primary-foreground: #ffffff;
+  --secondary: #006e2d;
+  --secondary-foreground: #ffffff;
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);

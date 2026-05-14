@@ -54,8 +54,8 @@ export function Header() {
                 className={
                   (hideUntilLg ? "hidden lg:block " : "") +
                   (active
-                    ? "relative shrink-0 font-bold text-secondary after:absolute after:-bottom-1 after:left-1/2 after:h-1 after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-secondary after:content-[''] font-label-md text-label-md lg:font-title-lg lg:text-title-lg"
-                    : "shrink-0 font-label-md text-label-md text-on-surface-variant transition-colors hover:text-secondary lg:font-title-lg lg:text-title-lg")
+                    ? "relative shrink-0 font-bold text-emerald-800 after:pointer-events-none after:absolute after:-bottom-1 after:left-1/2 after:h-1 after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-emerald-700 after:content-[''] font-label-md text-label-md lg:font-title-lg lg:text-title-lg"
+                    : "shrink-0 font-label-md text-label-md text-slate-800 transition-colors hover:text-emerald-700 lg:font-title-lg lg:text-title-lg")
                 }
               >
                 {t(item.labelKey)}
@@ -72,7 +72,7 @@ export function Header() {
           </div>
           <Link
             href="/volunteers#volunteer-form"
-            className="hidden rounded-full bg-primary-container px-4 py-2 font-label-md text-label-md text-on-primary-container transition-all duration-300 hover:bg-primary active:scale-95 lg:inline-flex lg:items-center lg:justify-center lg:px-6 lg:py-2.5"
+            className="hidden rounded-full bg-emerald-900 px-4 py-2 font-label-md text-label-md text-white shadow-sm transition-all duration-300 hover:bg-emerald-800 active:scale-95 lg:inline-flex lg:items-center lg:justify-center lg:px-6 lg:py-2.5"
           >
             {t("nav.becomeVolunteer")}
           </Link>
@@ -118,8 +118,8 @@ export function Header() {
                   href={item.href}
                   className={
                     active
-                      ? "text-xl font-semibold text-secondary"
-                      : "text-xl font-semibold text-on-surface"
+                      ? "text-xl font-semibold text-emerald-800"
+                      : "text-xl font-semibold text-slate-800"
                   }
                   onClick={() => setMenuOpen(false)}
                 >
@@ -131,7 +131,7 @@ export function Header() {
           <div className="mt-auto p-margin-mobile">
             <Link
               href="/volunteers#volunteer-form"
-              className="block w-full rounded-xl bg-primary py-4 text-center font-title-lg text-title-lg text-on-primary shadow-lg"
+              className="block w-full rounded-xl bg-emerald-900 py-4 text-center font-title-lg text-title-lg text-white shadow-lg transition-colors hover:bg-emerald-800"
               onClick={() => setMenuOpen(false)}
             >
               {t("nav.becomeVolunteer")}

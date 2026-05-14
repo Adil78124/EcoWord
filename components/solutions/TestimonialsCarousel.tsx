@@ -54,7 +54,7 @@ export function TestimonialsCarousel() {
             <button
               type="button"
               aria-label={t("sol.tc.prevAria")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-secondary hover:text-white"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-emerald-700 hover:text-white"
               onClick={prev}
             >
               <span className="material-symbols-outlined">chevron_left</span>
@@ -62,7 +62,7 @@ export function TestimonialsCarousel() {
             <button
               type="button"
               aria-label={t("sol.tc.nextAria")}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-secondary hover:text-white"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-outline transition-all hover:bg-emerald-700 hover:text-white"
               onClick={next}
             >
               <span className="material-symbols-outlined">chevron_right</span>
