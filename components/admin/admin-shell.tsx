@@ -105,7 +105,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
         <Separator />
         <div className="p-3 text-xs text-muted-foreground">
-          {/* TODO: заменить на RBAC / middleware после расширения сессии */}
           Доступ только для роли ADMIN в БД и при включённом{" "}
           <code className="rounded bg-muted px-1">ADMIN_PANEL_ENABLED</code>.
         </div>

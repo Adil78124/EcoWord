@@ -5,7 +5,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <p className="text-muted-foreground text-sm">
-        Раздел-заглушка для будущих настроек панели.
+        Настройки панели администратора.
       </p>
       <Card>
         <CardHeader>
@@ -13,15 +13,14 @@ export default function AdminSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            <strong className="text-foreground">TODO:</strong> полноценная
-            авторизация и проверка роли <code className="rounded bg-muted px-1">ADMIN</code> в
-            middleware, а не только в API-обработчиках.
+            Доступ к <code className="rounded bg-muted px-1">/admin</code> разрешён только при{" "}
+            <code className="rounded bg-muted px-1">ADMIN_PANEL_ENABLED=true</code> и активной
+            сессии пользователя с ролью{" "}
+            <code className="rounded bg-muted px-1">ADMIN</code> в PostgreSQL.
           </p>
           <p>
-            Сейчас доступ к <code className="rounded bg-muted px-1">/admin</code> ограничен
-            флагом{" "}
-            <code className="rounded bg-muted px-1">ADMIN_PANEL_ENABLED=true</code> и
-            сессией пользователя с ролью ADMIN в PostgreSQL.
+            Проверка выполняется в middleware и API-обработчиках. Публичные страницы сайта не
+            используют этот layout.
           </p>
         </CardContent>
       </Card>

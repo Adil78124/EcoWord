@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EcoWorld Kazakhstan
 
-## Getting Started
+Официальный веб-сайт экологической платформы **EcoWorld** — дипломный проект на Next.js с публичными страницами, формами для волонтёров и панелью администратора.
 
-First, run the development server:
+## Требования
+
+- [Node.js](https://nodejs.org/) **20 LTS** или новее (рекомендуется 20.x)
+- [PostgreSQL](https://www.postgresql.org/) 14+ (локально или облачный инстанс)
+- npm (устанавливается вместе с Node.js)
+
+## Быстрый старт
+
+### 1. Скачать и открыть проект
+
+Склонируйте репозиторий или распакуйте архив. Рабочая папка приложения — каталог **`web`** (в нём лежат `package.json`, `app`, `prisma`).
+
+```bash
+cd web
+```
+
+### 2. Установить зависимости
+
+```bash
+npm install
+```
+
+### 3. Настроить окружение
+
+Скопируйте пример файла переменных:
+
+```bash
+copy .env.example .env
+```
+
+На macOS / Linux:
+
+```bash
+cp .env.example .env
+```
+
+Заполните в `.env` (файл **не публикуется** в Git):
+
+| Переменная | Описание |
+|------------|----------|
+| `DATABASE_URL` | Строка подключения PostgreSQL, например `postgresql://user:password@localhost:5432/ecoworld` |
+| `JWT_SECRET` | Секрет для сессий (не короче 16 символов) |
+| `ADMIN_PANEL_ENABLED` | `true` — включить панель `/admin` |
+| `NEXT_PUBLIC_APP_URL` | Опционально: URL сайта в production |
+
+### 4. База данных
+
+Примените миграции Prisma:
+
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
+
+При первом запуске создайте пользователя с ролью **ADMIN** в PostgreSQL (см. `prisma/sql/add_admin.sql` или регистрацию через `/register` с последующим изменением роли в БД).
+
+### 5. Запуск в режиме разработки
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте в браузере:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Сайт: [http://localhost:3000](http://localhost:3000)
+- Админ-панель: [http://localhost:3000/admin](http://localhost:3000/admin) (нужен вход под пользователем с ролью ADMIN)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 6. Production-сборка
 
-## Learn More
+```bash
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Основные страницы
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| URL | Описание |
+|-----|----------|
+| `/` | Главная |
+| `/problems` | Экологические проблемы |
+| `/problems/air-pollution` и др. | Детальные страницы проблем |
+| `/solutions` | Решения и проекты |
+| `/volunteers` | Волонтёры |
+| `/about` | О проекте |
+| `/help` | Помощь и пожертвования |
+| `/sources` | Источники и отчёты |
+| `/privacy` | Политика конфиденциальности |
+| `/terms` | Условия использования |
+| `/admin` | Панель администратора |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Языки интерфейса: **RU** / **KZ** (переключатель в шапке сайта).
 
-## Deploy on Vercel
+## Структура проекта
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+web/
+├── app/              # Страницы и API (Next.js App Router)
+├── components/       # UI-компоненты и секции
+├── lib/              # Утилиты, i18n, Prisma, авторизация
+├── prisma/           # Схема БД и миграции
+├── public/           # Статические файлы (при необходимости)
+├── middleware.ts     # Защита /admin
+├── package.json
+├── .env.example
+└── README.md
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Скрипты npm
+
+| Команда | Назначение |
+|---------|------------|
+| `npm run dev` | Локальный сервер разработки |
+| `npm run build` | Сборка для production |
+| `npm start` | Запуск собранного приложения |
+| `npm run lint` | Проверка ESLint |
+| `npm run prisma:migrate` | Миграции в dev |
+| `npm run prisma:studio` | Просмотр данных в Prisma Studio |
+
+## Деплой (Vercel)
+
+1. Подключите репозиторий к [Vercel](https://vercel.com).
+2. Укажите корень проекта: **`web`**.
+3. Добавьте переменные окружения из `.env.example` в настройках проекта.
+4. После деплоя выполните `npx prisma migrate deploy` к production-БД.
+
+**Не загружайте в Git:** `.env`, `.env.local`, `node_modules`, `.next`.
+
+## Лицензия и авторство
+
+Дипломный проект. © EcoWorld Kazakhstan.

@@ -479,6 +479,23 @@ export const PAGE_MESSAGES: Record<string, Record<AppLocale, string>> = {
     kz: "Ерте анықтау жүйелері және тұтанудың алдын алу.",
   },
 
+  "probDetail.back": { ru: "На главную", kz: "Басты бетке" },
+  "probDetail.whyImportant": { ru: "Почему это важно", kz: "Неге маңызды" },
+  "probDetail.howWeSolve": {
+    ru: "Как мы решаем проблему",
+    kz: "Мәселені қалай шешеміз",
+  },
+  "probDetail.cta.title": {
+    ru: "Присоединиться к экологической инициативе",
+    kz: "Экологиялық бастамаға қосылу",
+  },
+  "probDetail.cta.sub": {
+    ru: "Станьте частью изменений: поддержите проекты EcoWorld или присоединяйтесь к команде волонтёров.",
+    kz: "Өзгерістердің бір бөлігі болыңыз: EcoWorld жобаларын қолдаңыз немесе еріктілер командасына қосылыңыз.",
+  },
+  "probDetail.cta.volunteer": { ru: "Стать волонтёром", kz: "Ерікті болу" },
+  "probDetail.cta.support": { ru: "Поддержать проект", kz: "Жобаны қолдау" },
+
   "register.name": { ru: "Имя", kz: "Аты" },
   "register.email": { ru: "Email", kz: "Email" },
   "register.phone": { ru: "Телефон", kz: "Телефон" },
