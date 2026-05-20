@@ -55,9 +55,6 @@ export async function PATCH(req: Request) {
   if (auth instanceof Response) return auth;
   const dbMissing = respondIfDatabaseNotConfigured();
   if (dbMissing) return dbMissing;
-  if (isBootstrapAdminSession(auth.userId)) {
-    return jsonError("Профиль bootstrap-администратора нельзя изменить из панели.", 400);
-  }
   try {
     const body = await req.json();
     const parsed = adminProfileUpdateSchema.safeParse(body);
@@ -66,7 +63,15 @@ export async function PATCH(req: Request) {
     }
     const { name, email, currentPassword, newPassword } = parsed.data;
     const user = await prisma.user.findUnique({ where: { id: auth.userId } });
-    if (!user) return jsonError("Пользователь не найден.", 404);
+    if (!user) {
+      if (isBootstrapAdminSession(auth.userId)) {
+        return jsonError(
+          "Временный bootstrap-админ не найден в базе. Добавьте администратора в PostgreSQL через prisma/sql/add_admin.sql, потом профиль можно будет редактировать.",
+          400,
+        );
+      }
+      return jsonError("Пользователь не найден.", 404);
+    }
 
     const nextEmail = email.toLowerCase();
     if (nextEmail !== user.email) {
