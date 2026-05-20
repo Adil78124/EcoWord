@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -41,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 type VolunteerRow = {
   id: string;
@@ -55,6 +57,10 @@ type VolunteerRow = {
   status: VolunteerApplicationStatus;
   createdAt: string;
   updatedAt: string;
+};
+
+type VolunteerDraft = Omit<VolunteerRow, "id" | "createdAt" | "updatedAt" | "age"> & {
+  age: number | string;
 };
 
 type ListResponse = { success: true; items: VolunteerRow[] };
@@ -74,6 +80,20 @@ function buildQuery(status: string, q: string): string {
   return s ? `?${s}` : "";
 }
 
+function toDraft(row: VolunteerRow): VolunteerDraft {
+  return {
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    city: row.city,
+    age: row.age,
+    direction: row.direction,
+    experience: row.experience,
+    comment: row.comment,
+    status: row.status,
+  };
+}
+
 export default function AdminVolunteersPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VolunteerRow[]>([]);
@@ -82,6 +102,8 @@ export default function AdminVolunteersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [detail, setDetail] = useState<VolunteerRow | null>(null);
+  const [editTarget, setEditTarget] = useState<VolunteerRow | null>(null);
+  const [draft, setDraft] = useState<VolunteerDraft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VolunteerRow | null>(null);
 
   useEffect(() => {
@@ -106,7 +128,7 @@ export default function AdminVolunteersPage() {
   }, [load]);
 
   const patchStatus = async (id: string, status: VolunteerApplicationStatus) => {
-    const res = await adminJson<{ success: true }>(
+    const res = await adminJson<{ success: true; item: VolunteerRow }>(
       `/api/admin/volunteers/${id}`,
       { method: "PATCH", body: JSON.stringify({ status }) },
     );
@@ -116,7 +138,28 @@ export default function AdminVolunteersPage() {
     }
     toast.success("Статус обновлён");
     await load();
-    setDetail((d) => (d?.id === id ? { ...d, status } : d));
+    setDetail((d) => (d?.id === id ? res.data.item : d));
+  };
+
+  const openEdit = (row: VolunteerRow) => {
+    setEditTarget(row);
+    setDraft(toDraft(row));
+  };
+
+  const saveEdit = async () => {
+    if (!editTarget || !draft) return;
+    const res = await adminJson<{ success: true; item: VolunteerRow }>(
+      `/api/admin/volunteers/${editTarget.id}`,
+      { method: "PATCH", body: JSON.stringify({ ...draft, age: Number(draft.age) }) },
+    );
+    if (!res.ok) {
+      toast.error(res.message);
+      return;
+    }
+    toast.success("Заявка обновлена");
+    setEditTarget(null);
+    setDraft(null);
+    await load();
   };
 
   const remove = async () => {
@@ -141,16 +184,14 @@ export default function AdminVolunteersPage() {
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground text-sm">
-        Заявки «Стать частью команды». Статусы сохраняются в PostgreSQL.
+        Заявки волонтёров. Через меню действий можно открыть, редактировать,
+        изменить статус или удалить запись.
       </p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="space-y-1.5">
           <span className="text-muted-foreground text-xs">Статус</span>
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => setStatusFilter(v ?? "ALL")}
-          >
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "ALL")}>
             <SelectTrigger className="w-full sm:w-56">
               <SelectValue placeholder="Все" />
             </SelectTrigger>
@@ -220,9 +261,7 @@ export default function AdminVolunteersPage() {
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger
-                        render={
-                          <Button variant="ghost" size="icon-sm" aria-label="Действия" />
-                        }
+                        render={<Button variant="ghost" size="icon-sm" aria-label="Действия" />}
                       >
                         <MoreHorizontal className="size-4" />
                       </DropdownMenuTrigger>
@@ -231,27 +270,21 @@ export default function AdminVolunteersPage() {
                         <DropdownMenuItem onClick={() => setDetail(row)}>
                           Открыть детали
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(row)}>
+                          Редактировать
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => patchStatus(row.id, "IN_REVIEW")}
-                        >
+                        <DropdownMenuItem onClick={() => patchStatus(row.id, "IN_REVIEW")}>
                           На рассмотрении
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => patchStatus(row.id, "APPROVED")}
-                        >
+                        <DropdownMenuItem onClick={() => patchStatus(row.id, "APPROVED")}>
                           Принять
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => patchStatus(row.id, "REJECTED")}
-                        >
+                        <DropdownMenuItem onClick={() => patchStatus(row.id, "REJECTED")}>
                           Отказать
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => setDeleteTarget(row)}
-                        >
+                        <DropdownMenuItem variant="destructive" onClick={() => setDeleteTarget(row)}>
                           Удалить
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -262,49 +295,24 @@ export default function AdminVolunteersPage() {
             </TableBody>
           </Table>
         )}
-        {empty && (
-          <p className="text-muted-foreground p-4 text-sm">Заявок не найдено.</p>
-        )}
+        {empty && <p className="text-muted-foreground p-4 text-sm">Заявок не найдено.</p>}
       </div>
 
       <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{detail?.name}</DialogTitle>
-            <DialogDescription>
-              Полная информация по заявке волонтёра.
-            </DialogDescription>
+            <DialogDescription>Полная информация по заявке волонтёра.</DialogDescription>
           </DialogHeader>
           {detail && (
             <div className="grid gap-2 text-sm">
-              <div>
-                <span className="text-muted-foreground">Телефон: </span>
-                {detail.phone}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Email: </span>
-                {detail.email}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Город: </span>
-                {detail.city}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Возраст: </span>
-                {detail.age}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Направление: </span>
-                {detail.direction}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Опыт: </span>
-                {detail.experience || "—"}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Комментарий: </span>
-                {detail.comment || "—"}
-              </div>
+              <div><span className="text-muted-foreground">Телефон: </span>{detail.phone}</div>
+              <div><span className="text-muted-foreground">Email: </span>{detail.email}</div>
+              <div><span className="text-muted-foreground">Город: </span>{detail.city}</div>
+              <div><span className="text-muted-foreground">Возраст: </span>{detail.age}</div>
+              <div><span className="text-muted-foreground">Направление: </span>{detail.direction}</div>
+              <div><span className="text-muted-foreground">Опыт: </span>{detail.experience || "-"}</div>
+              <div><span className="text-muted-foreground">Комментарий: </span>{detail.comment || "-"}</div>
               <div className="flex flex-wrap items-center gap-2 pt-2">
                 <span className="text-muted-foreground">Статус:</span>
                 <VolunteerStatusBadge status={detail.status} />
@@ -316,27 +324,74 @@ export default function AdminVolunteersPage() {
           )}
           <DialogFooter className="gap-2 sm:justify-between">
             <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => detail && patchStatus(detail.id, "IN_REVIEW")}
-              >
+              <Button size="sm" variant="secondary" onClick={() => detail && patchStatus(detail.id, "IN_REVIEW")}>
                 На рассмотрении
               </Button>
-              <Button
-                size="sm"
-                onClick={() => detail && patchStatus(detail.id, "APPROVED")}
-              >
+              <Button size="sm" onClick={() => detail && patchStatus(detail.id, "APPROVED")}>
                 Принять
               </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => detail && patchStatus(detail.id, "REJECTED")}
-              >
+              <Button size="sm" variant="destructive" onClick={() => detail && patchStatus(detail.id, "REJECTED")}>
                 Отказать
               </Button>
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Редактировать заявку</DialogTitle>
+            <DialogDescription>Изменения сохраняются в PostgreSQL.</DialogDescription>
+          </DialogHeader>
+          {draft && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="vol-name">Имя</Label>
+                <Input id="vol-name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vol-phone">Телефон</Label>
+                <Input id="vol-phone" value={draft.phone} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vol-email">Email</Label>
+                <Input id="vol-email" type="email" value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vol-city">Город</Label>
+                <Input id="vol-city" value={draft.city} onChange={(e) => setDraft({ ...draft, city: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vol-age">Возраст</Label>
+                <Input id="vol-age" type="number" min={1} max={120} value={draft.age} onChange={(e) => setDraft({ ...draft, age: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Статус</Label>
+                <Select value={draft.status} onValueChange={(v) => setDraft({ ...draft, status: v as VolunteerApplicationStatus })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="vol-direction">Направление</Label>
+                <Input id="vol-direction" value={draft.direction} onChange={(e) => setDraft({ ...draft, direction: e.target.value })} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="vol-experience">Опыт</Label>
+                <Textarea id="vol-experience" value={draft.experience} onChange={(e) => setDraft({ ...draft, experience: e.target.value })} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="vol-comment">Комментарий</Label>
+                <Textarea id="vol-comment" value={draft.comment} onChange={(e) => setDraft({ ...draft, comment: e.target.value })} />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>Отмена</Button>
+            <Button onClick={() => void saveEdit()}>Сохранить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -346,17 +401,12 @@ export default function AdminVolunteersPage() {
           <DialogHeader>
             <DialogTitle>Удалить заявку?</DialogTitle>
             <DialogDescription>
-              Будет удалена заявка «{deleteTarget?.name}». Это действие нельзя
-              отменить.
+              Будет удалена заявка «{deleteTarget?.name}». Это действие нельзя отменить.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Отмена
-            </Button>
-            <Button variant="destructive" onClick={() => void remove()}>
-              Удалить
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Отмена</Button>
+            <Button variant="destructive" onClick={() => void remove()}>Удалить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

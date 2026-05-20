@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -42,7 +43,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
 
 type ProfileSlice = {
   id: string;
@@ -61,6 +61,14 @@ type UserRow = {
   role: UserRole;
   createdAt: string;
   profile: ProfileSlice;
+};
+
+type UserDraft = {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  role: UserRole;
 };
 
 type ListResponse = { success: true; items: UserRow[] };
@@ -83,6 +91,16 @@ function buildQuery(role: string, q: string): string {
   return s ? `?${s}` : "";
 }
 
+function toDraft(row: UserRow): UserDraft {
+  return {
+    name: row.name,
+    email: row.email,
+    phone: row.phone ?? "",
+    city: row.city ?? "",
+    role: row.role,
+  };
+}
+
 export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<UserRow[]>([]);
@@ -92,7 +110,8 @@ export default function AdminUsersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [detail, setDetail] = useState<UserRow | null>(null);
-  const [roleDraft, setRoleDraft] = useState<UserRole>("USER");
+  const [editTarget, setEditTarget] = useState<UserRow | null>(null);
+  const [draft, setDraft] = useState<UserDraft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
 
   useEffect(() => {
@@ -129,27 +148,26 @@ export default function AdminUsersPage() {
     void loadUsers();
   }, [loadUsers]);
 
-  const openDetail = (row: UserRow) => {
-    setDetail(row);
-    setRoleDraft(row.role);
+  const openEdit = (row: UserRow) => {
+    setEditTarget(row);
+    setDraft(toDraft(row));
   };
 
-  const saveRole = async () => {
-    if (!detail) return;
-    if (detail.id === meId) {
-      toast.error("Нельзя изменить собственную роль.");
-      return;
-    }
-    const res = await adminJson<{ success: true }>(
-      `/api/admin/users/${detail.id}`,
-      { method: "PATCH", body: JSON.stringify({ role: roleDraft }) },
+  const saveEdit = async () => {
+    if (!editTarget || !draft) return;
+    const payload = editTarget.id === meId ? { ...draft, role: undefined } : draft;
+    const res = await adminJson<{ success: true; item: UserRow }>(
+      `/api/admin/users/${editTarget.id}`,
+      { method: "PATCH", body: JSON.stringify(payload) },
     );
     if (!res.ok) {
       toast.error(res.message);
       return;
     }
-    toast.success("Роль обновлена");
-    setDetail((d) => (d ? { ...d, role: roleDraft } : d));
+    toast.success("Пользователь обновлён");
+    setEditTarget(null);
+    setDraft(null);
+    setDetail((d) => (d?.id === editTarget.id ? res.data.item : d));
     await loadUsers();
   };
 
@@ -168,49 +186,29 @@ export default function AdminUsersPage() {
     await loadUsers();
   };
 
-  const empty = useMemo(
-    () => !loading && items.length === 0,
-    [loading, items.length],
-  );
-
-  const isSelf = detail?.id === meId;
+  const empty = useMemo(() => !loading && items.length === 0, [loading, items.length]);
 
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground text-sm">
-        Пользователи и профили. Поле <code className="rounded bg-muted px-1">passwordHash</code>{" "}
-        никогда не передаётся в API ответах.
+        Пользователи и профили. Админ может открыть профиль, редактировать
+        основные данные и роль, а также удалить пользователя.
       </p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="space-y-1.5">
           <span className="text-muted-foreground text-xs">Роль</span>
-          <Select
-            value={roleFilter}
-            onValueChange={(v) => setRoleFilter(v ?? "ALL")}
-          >
-            <SelectTrigger className="w-full sm:w-56">
-              <SelectValue placeholder="Все" />
-            </SelectTrigger>
+          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "ALL")}>
+            <SelectTrigger className="w-full sm:w-56"><SelectValue placeholder="Все" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Все роли</SelectItem>
-              {ROLE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
+              {ROLE_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div className="min-w-0 flex-1 space-y-1.5">
-          <span className="text-muted-foreground text-xs">
-            Поиск по имени, email или телефону
-          </span>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Начните вводить..."
-          />
+          <span className="text-muted-foreground text-xs">Поиск по имени, email или телефону</span>
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Начните вводить..." />
         </div>
       </div>
 
@@ -236,36 +234,21 @@ export default function AdminUsersPage() {
             <TableBody>
               {items.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="max-w-[140px] truncate font-medium">
-                    {row.name}
-                  </TableCell>
-                  <TableCell className="max-w-[180px] truncate text-xs">
-                    {row.email}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {row.phone ?? "—"}
-                  </TableCell>
-                  <TableCell>{row.city ?? "—"}</TableCell>
-                  <TableCell>
-                    <UserRoleBadge role={row.role} />
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs whitespace-normal">
-                    {formatRuDateTime(row.createdAt)}
-                  </TableCell>
+                  <TableCell className="max-w-[140px] truncate font-medium">{row.name}</TableCell>
+                  <TableCell className="max-w-[180px] truncate text-xs">{row.email}</TableCell>
+                  <TableCell className="font-mono text-xs">{row.phone ?? "-"}</TableCell>
+                  <TableCell>{row.city ?? "-"}</TableCell>
+                  <TableCell><UserRoleBadge role={row.role} /></TableCell>
+                  <TableCell className="text-muted-foreground text-xs whitespace-normal">{formatRuDateTime(row.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={
-                          <Button variant="ghost" size="icon-sm" aria-label="Действия" />
-                        }
-                      >
+                      <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Действия" />}>
                         <MoreHorizontal className="size-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => openDetail(row)}>
-                          Открыть профиль
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setDetail(row)}>Открыть профиль</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(row)}>Редактировать</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           variant="destructive"
@@ -282,19 +265,10 @@ export default function AdminUsersPage() {
             </TableBody>
           </Table>
         )}
-        {empty && (
-          <p className="text-muted-foreground p-4 text-sm">
-            Пользователей не найдено.
-          </p>
-        )}
+        {empty && <p className="text-muted-foreground p-4 text-sm">Пользователей не найдено.</p>}
       </div>
 
-      <Dialog
-        open={!!detail}
-        onOpenChange={(o) => {
-          if (!o) setDetail(null);
-        }}
-      >
+      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{detail?.name}</DialogTitle>
@@ -302,79 +276,76 @@ export default function AdminUsersPage() {
           </DialogHeader>
           {detail && (
             <div className="grid gap-4 text-sm">
-              <div className="grid gap-1">
-                <span className="text-muted-foreground text-xs">Телефон</span>
-                <span>{detail.phone ?? "—"}</span>
-              </div>
-              <div className="grid gap-1">
-                <span className="text-muted-foreground text-xs">Город</span>
-                <span>{detail.city ?? "—"}</span>
-              </div>
-              <div className="grid gap-1">
-                <span className="text-muted-foreground text-xs">
-                  Дата регистрации
-                </span>
-                <span>{formatRuDateTime(detail.createdAt)}</span>
-              </div>
+              <div className="grid gap-1"><span className="text-muted-foreground text-xs">Телефон</span><span>{detail.phone ?? "-"}</span></div>
+              <div className="grid gap-1"><span className="text-muted-foreground text-xs">Город</span><span>{detail.city ?? "-"}</span></div>
+              <div className="grid gap-1"><span className="text-muted-foreground text-xs">Дата регистрации</span><span>{formatRuDateTime(detail.createdAt)}</span></div>
+              <div className="flex flex-wrap items-center gap-2"><span className="text-muted-foreground">Роль:</span><UserRoleBadge role={detail.role} /></div>
               <Separator />
               <div className="space-y-2">
                 <span className="text-muted-foreground text-xs">Профиль</span>
                 {detail.profile ? (
                   <div className="grid gap-2 rounded-lg border p-3">
-                    <div>
-                      <span className="text-muted-foreground">О себе: </span>
-                      {detail.profile.bio || "—"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Интересы: </span>
-                      {detail.profile.interests || "—"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Часы волонтёрства:{" "}
-                      </span>
-                      {detail.profile.volunteerHours}
-                    </div>
+                    <div><span className="text-muted-foreground">О себе: </span>{detail.profile.bio || "-"}</div>
+                    <div><span className="text-muted-foreground">Интересы: </span>{detail.profile.interests || "-"}</div>
+                    <div><span className="text-muted-foreground">Часы волонтёрства: </span>{detail.profile.volunteerHours}</div>
                   </div>
                 ) : (
                   <p className="text-muted-foreground">Профиль не заполнен.</p>
                 )}
               </div>
+            </div>
+          )}
+          <DialogFooter>
+            {detail && <Button onClick={() => openEdit(detail)}>Редактировать</Button>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Редактировать пользователя</DialogTitle>
+            <DialogDescription>
+              Можно изменить имя, email, телефон, город и роль. Свою роль админ изменить не может.
+            </DialogDescription>
+          </DialogHeader>
+          {draft && (
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="role-select">Роль в системе</Label>
+                <Label htmlFor="user-name">Имя</Label>
+                <Input id="user-name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="user-email">Email</Label>
+                <Input id="user-email" type="email" value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="user-phone">Телефон</Label>
+                <Input id="user-phone" value={draft.phone} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="user-city">Город</Label>
+                <Input id="user-city" value={draft.city} onChange={(e) => setDraft({ ...draft, city: e.target.value })} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Роль</Label>
                 <Select
-                  value={roleDraft}
-                  onValueChange={(v) => setRoleDraft((v ?? "USER") as UserRole)}
-                  disabled={isSelf}
+                  value={draft.role}
+                  disabled={editTarget?.id === meId}
+                  onValueChange={(v) => setDraft({ ...draft, role: v as UserRole })}
                 >
-                  <SelectTrigger id="role-select" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{ROLE_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
                 </Select>
-                {isSelf && (
-                  <p className="text-muted-foreground text-xs">
-                    Нельзя изменить собственную роль через панель (защита от
-                    случайной блокировки).
-                  </p>
+                {editTarget?.id === meId && (
+                  <p className="text-muted-foreground text-xs">Собственную роль нельзя изменить из панели.</p>
                 )}
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDetail(null)}>
-              Закрыть
-            </Button>
-            <Button onClick={() => void saveRole()} disabled={isSelf}>
-              Сохранить роль
-            </Button>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>Отмена</Button>
+            <Button onClick={() => void saveEdit()}>Сохранить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -384,17 +355,13 @@ export default function AdminUsersPage() {
           <DialogHeader>
             <DialogTitle>Удалить пользователя?</DialogTitle>
             <DialogDescription>
-              Будет удалён пользователь «{deleteTarget?.name}» ({deleteTarget?.email}
-              ). Связанный профиль удалится каскадно.
+              Будет удалён пользователь «{deleteTarget?.name}» ({deleteTarget?.email}).
+              Связанный профиль удалится каскадно.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Отмена
-            </Button>
-            <Button variant="destructive" onClick={() => void remove()}>
-              Удалить
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Отмена</Button>
+            <Button variant="destructive" onClick={() => void remove()}>Удалить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
