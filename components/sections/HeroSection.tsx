@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
-const HERO_IMG =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCBMdMc8mRBPE0Mxk0Inz7AAh57fWV8OVzi_eE9Y-3ctAZiLeMgab-T97nQgZpcsotItjOCRckrCmlbhBGbUVOAVVtGSmObNYNyArKTCyz7KLSLWGkTDuHMwUph4UMXwFhJ9WGLNdngg_UhrPv39H1HIb1NziYCn9-sJvh_8Rj9NvvW_4uSVWGtKTHQgMduSO9TW406tO6sfRikzN0Mlf-5QRoTGLW3e0vgT3PD60IlPhCIeACdjsiHUnqLMENV3lG5ic7EPAYx17oN";
+const HERO_IMG = "/heropageone.jpeg";
 
 export function HeroSection() {
   const { t } = useI18n();

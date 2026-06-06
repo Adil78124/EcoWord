@@ -7,7 +7,6 @@ import { DonationTypePicker } from "@/components/help/DonationTypePicker";
 
 export default function HelpPage() {
   const { t } = useI18n();
-  const logoSlots = [1, 2, 3, 4] as const;
 
   return (
     <main className="overflow-x-hidden pb-unit-xl pt-32">
@@ -61,31 +60,6 @@ export default function HelpPage() {
             </Link>
             <div className="absolute -bottom-10 -right-10 opacity-10 transition-transform duration-500 group-hover:scale-110">
               <span className="material-symbols-outlined text-[120px]">eco</span>
-            </div>
-          </div>
-          <div className="glass-card flex flex-col items-center gap-gutter rounded-xl p-unit-lg md:col-span-12 md:flex-row">
-            <div className="flex flex-col gap-4 md:w-1/3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container/30 text-secondary">
-                <span className="material-symbols-outlined text-3xl">handshake</span>
-              </div>
-              <h3 className="font-headline-md text-headline-md text-primary">{t("help.partnerTitle")}</h3>
-              <p className="text-on-surface-variant">{t("help.partnerText")}</p>
-              <Link
-                href="/help#contact-form"
-                className="w-fit border-b border-secondary py-1 font-label-md text-secondary transition-colors hover:text-primary"
-              >
-                {t("help.partnerLink")}
-              </Link>
-            </div>
-            <div className="grid min-w-0 flex-1 grid-cols-2 gap-4 opacity-50 grayscale transition-all duration-700 hover:grayscale-0 md:w-2/3 md:grid-cols-4">
-              {logoSlots.map((n) => (
-                <div
-                  key={n}
-                  className="glass-card flex h-20 items-center justify-center rounded-lg font-display-lg text-primary/20"
-                >
-                  {t("help.logoPlaceholder")} {n}
-                </div>
-              ))}
             </div>
           </div>
         </div>
